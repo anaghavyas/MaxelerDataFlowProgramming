@@ -1,0 +1,45 @@
+package heapsortmaxeler;
+
+import com.maxeler.maxcompiler.v2.kernelcompiler.Kernel;
+import com.maxeler.maxcompiler.v2.kernelcompiler.KernelParameters;
+import com.maxeler.maxcompiler.v2.kernelcompiler.stdlib.memory.Memory;
+import com.maxeler.maxcompiler.v2.kernelcompiler.types.base.DFEFix;
+import com.maxeler.maxcompiler.v2.kernelcompiler.types.base.DFEVar;
+import com.maxeler.maxcompiler.v2.utils.MathUtils;
+
+class HeapSortMaxelerKernel extends Kernel {
+
+	protected HeapSortMaxelerKernel(KernelParameters parameters, int dataSize) {
+		super(parameters);
+
+
+		int addrBits = MathUtils.bitsToAddress(dataSize);
+
+		// Input
+		DFEVar addressA = io.input("addressA", dfeUInt(addrBits));
+		DFEVar addressB = io.input("addressB", dfeUInt(addrBits));
+
+
+		Memory<DFEVar> mappedRom = mem.alloc(dfeFloat(8,24), dataSize);
+		mappedRom.mapToCPU("mappedRom");
+
+		// Output
+		DFEVar readA = mappedRom.read(addressA); // read data from the two addresses
+		DFEVar readB = mappedRom.read(addressB); // read data from the two addresses
+
+		addressA.simWatch("addressA");
+		readA.simWatch("readA");
+		addressB.simWatch("addressB");
+		readB.simWatch("readB");
+		DFEFix readingInput = dfeBool();
+		Memory<DFEVar> swapMem = mem.alloc(dfeFloat(8,24), dataSize);
+		swapMem.mapToCPU("mappedRom");
+		swapMem.write(addressA, readB);		//swap the data in memory
+		swapMem.write(addressB, readA);		//swap the data in memory
+
+
+	}
+
+
+
+}
